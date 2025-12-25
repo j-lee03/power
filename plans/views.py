@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, exceptions  # [수정] exceptions 추가
 from rest_framework.parsers import MultiPartParser, FormParser
 from .models import EventDocument
 from .serializers import DocumentSerializer
@@ -21,14 +21,16 @@ class DocumentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user_role = self.request.user.profile.role
         if user_role < 1: # 최소 STAFF 이상
-            raise permissions.PermissionDenied("업로드 권한이 없습니다.")
+            # [수정] permissions.PermissionDenied -> exceptions.PermissionDenied
+            raise exceptions.PermissionDenied("업로드 권한이 없습니다.")
         serializer.save()
 
-    # 3. 문서 수정/삭제 권한 체크
+    # 3. 문서 수정/삭제 권한 체크 함수
     def check_write_permission(self, instance):
         user_role = self.request.user.profile.role
         if user_role < instance.write_level:
-            raise permissions.PermissionDenied("수정/삭제 권한이 부족합니다.")
+            # [수정] permissions.PermissionDenied -> exceptions.PermissionDenied
+            raise exceptions.PermissionDenied("수정/삭제 권한이 부족합니다.")
 
     def perform_update(self, serializer):
         self.check_write_permission(serializer.instance)
