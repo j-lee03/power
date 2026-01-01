@@ -1,13 +1,12 @@
+# 파일 위치: config/urls.py
+
 from django.contrib import admin
-from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
+from django.urls import path, include  # 1. include를 꼭 추가해야 합니다!
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('plans.urls')),  # plans 앱 연결
-]
 
-# 개발 모드일 때 PDF 파일 접근 허용
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # 2. plans 앱의 urls를 연결하는 코드를 추가합니다.
+    # 이렇게 하면 메인 주소로 들어왔을 때 plans 폴더의 urls.py로 안내합니다.
+    path('', include('plans.urls')),
+]
