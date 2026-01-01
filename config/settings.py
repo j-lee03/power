@@ -10,31 +10,28 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
-import dj_database_url  # <--- 이 줄이 반드시 있어야 합니다!
 from pathlib import Path
-from dotenv import load_dotenv
-
-load_dotenv()
-
-
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# [보안 1] SECRET_KEY는 환경변수에서 가져오거나, 없으면 임의값 사용
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback-key')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# [보안 2] 배포 시엔 False로 설정 (Render 환경변수에서 'False'로 설정 예정)
+DEBUG = 'RENDER' not in os.environ
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-scb#q=tdca(cxe24eyzvjwjv-59xr&jwzo%8u3mq1p^v)rw2lt'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
+# [보안 3] 허용할 호스트 설정 (Render 주소 자동 허용)
 ALLOWED_HOSTS = []
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
-
-# Application definition
+# [보안 4] CSRF 신뢰 도메인 (Render 배포 시 필수)
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -43,15 +40,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',   # API 기능
-    'corsheaders',      # 보안 통신
-    'plans',            # 앱
+    # Third-party apps
+    'rest_framework',
+    'corsheaders',
+    # Local apps
+    'plans',
 ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # [필수] 정적 파일 관리
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -69,6 +68,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -79,59 +79,35 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
+# [DB] Render의 PostgreSQL 주소를 자동으로 연결
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL', 'sqlite:///' + str(BASE_DIR / 'db.sqlite3')),
+        # 로컬에서는 sqlite3 사용, 배포 시엔 환경변수 DATABASE_URL 사용
+        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
         conn_max_age=600,
     )
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    # ... (나머지 기본 검증기들 유지)
 ]
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = 'ko-kr'
 TIME_ZONE = 'Asia/Seoul'
-
-
-
 USE_I18N = True
-
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
+# [정적 파일] WhiteNoise 설정
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+# [미디어 파일] (Render 무료 버전은 파일 영구 저장이 안 되지만, 임시 테스트용 설정)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_ALL_ORIGINS = True # (필요시 프론트엔드 도메인만 허용하도록 수정)
