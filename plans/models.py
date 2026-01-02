@@ -3,6 +3,10 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
+
+
+
+
 import os
 
 
@@ -85,11 +89,13 @@ class EventDocument(models.Model):
             self.pdf_file.delete()
         super().delete(*args, **kwargs)
 
-    class Document(models.Model):
-        title = models.CharField(max_length=200)
-        content = models.TextField()
-        created_at = models.DateTimeField(auto_now_add=True)
-        updated_at = models.DateTimeField(auto_now=True)
+class Document(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    file_data = models.BinaryField(null=True, blank=True)
+    filename = models.CharField(max_length=200, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-        def __str__(self):
-            return self.title
+    def __str__(self):
+        return self.title
