@@ -3,28 +3,26 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 from .models import Profile, EventDocument
 
-# 1. 사용자 관리 화면 설정
+
+
 class ProfileInline(admin.StackedInline):
     model = Profile
     can_delete = False
     verbose_name_plural = '조직 및 직급 설정'
     verbose_name = '사원 정보'
 
-    # 여러 필드를 한 줄에 보기 좋게 배치할 수도 있습니다 (선택사항)
-    # fieldsets = (
-    #     (None, {'fields': ('role', 'department', 'team')}),
-    # )
+
 
 class UserAdmin(BaseUserAdmin):
     inlines = (ProfileInline,)
-    # 목록에 소속 정보 표시
+
     list_display = ('username', 'get_group_info', 'get_role_korean', 'is_staff')
 
     def get_role_korean(self, obj):
         return obj.profile.get_role_display() if hasattr(obj, 'profile') else '-'
     get_role_korean.short_description = '직급'
 
-    # 소속 정보를 "시설팀/무대음향" 형태로 표시
+
     def get_group_info(self, obj):
         if not hasattr(obj, 'profile'):
             return '-'
@@ -40,7 +38,8 @@ class UserAdmin(BaseUserAdmin):
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 
-# 2. 문서 관리 화면 설정 (기존 유지)
+
+
 @admin.register(EventDocument)
 class EventDocumentAdmin(admin.ModelAdmin):
     list_display = ('title', 'get_read_role', 'get_write_role', 'uploaded_at')

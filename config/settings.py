@@ -13,22 +13,24 @@ import os
 from pathlib import Path
 import dj_database_url
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# [보안 1] SECRET_KEY는 환경변수에서 가져오거나, 없으면 임의값 사용
+
+
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback-key')
 
-# [보안 2] 배포 시엔 False로 설정 (Render 환경변수에서 'False'로 설정 예정)
+
+
 DEBUG = 'RENDER' not in os.environ
 
-# [보안 3] 허용할 호스트 설정 (Render 주소 자동 허용)
+
 ALLOWED_HOSTS = []
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
-# [보안 4] CSRF 신뢰 도메인 (Render 배포 시 필수)
+
 CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
 ]
@@ -40,10 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Third-party apps
     'rest_framework',
     'corsheaders',
-    # Local apps
     'plans',
 ]
 
@@ -79,10 +79,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# [DB] Render의 PostgreSQL 주소를 자동으로 연결
+
 DATABASES = {
     'default': dj_database_url.config(
-        # 로컬에서는 sqlite3 사용, 배포 시엔 환경변수 DATABASE_URL 사용
+
         default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
         conn_max_age=600,
     )
@@ -91,7 +91,7 @@ DATABASES = {
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    # ... (나머지 기본 검증기들 유지)
+
 ]
 
 LANGUAGE_CODE = 'ko-kr'
@@ -99,15 +99,15 @@ TIME_ZONE = 'Asia/Seoul'
 USE_I18N = True
 USE_TZ = True
 
-# [정적 파일] WhiteNoise 설정
+
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# [미디어 파일] (Render 무료 버전은 파일 영구 저장이 안 되지만, 임시 테스트용 설정)
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOW_ALL_ORIGINS = True # (필요시 프론트엔드 도메인만 허용하도록 수정)
+CORS_ALLOW_ALL_ORIGINS = True

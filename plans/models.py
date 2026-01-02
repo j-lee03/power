@@ -5,7 +5,7 @@ from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 import os
 
-# 1. 직급 및 부서 상수 정의
+
 ROLE_CHOICES = (
     (0, '스텝 (Staff)'),
     (1, '파트장 (Part Leader)'),
@@ -29,7 +29,7 @@ TEAM_CHOICES = (
     ('HR', '인재관리팀'),
 )
 
-# 부서별 허용 팀 목록
+
 VALID_TEAMS = {
     'FACILITY': ['SOUND', 'LIGHT', 'VIDEO', 'GUIDE'],
     'OFFICE':   ['ACCOUNT', 'HR'],
