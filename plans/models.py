@@ -84,3 +84,12 @@ class EventDocument(models.Model):
         if self.pdf_file:
             self.pdf_file.delete()
         super().delete(*args, **kwargs)
+
+    class Document(models.Model):
+        title = models.CharField(max_length=200)
+        content = models.TextField()
+        created_at = models.DateTimeField(auto_now_add=True)
+        updated_at = models.DateTimeField(auto_now=True)
+
+        def __str__(self):
+            return self.title

@@ -2,10 +2,9 @@ from rest_framework import serializers
 from .models import EventDocument
 
 class DocumentSerializer(serializers.ModelSerializer):
-
-    read_level_display = serializers.CharField(source='get_read_level_display', read_only=True)
-    write_level_display = serializers.CharField(source='get_write_level_display', read_only=True)
-
+    class Meta:
+        model = Document
+        fields = '__all__'
     class Meta:
         model = EventDocument
         fields = [
