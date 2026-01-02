@@ -1,8 +1,8 @@
 from rest_framework import viewsets, permissions, exceptions
 from rest_framework.parsers import MultiPartParser, FormParser
 from .models import EventDocument
+from .models import Document
 from .serializers import DocumentSerializer
-
 class DocumentViewSet(viewsets.ModelViewSet):
 
     queryset = EventDocument.objects.all()
@@ -11,6 +11,9 @@ class DocumentViewSet(viewsets.ModelViewSet):
     parser_classes = (MultiPartParser, FormParser)
     permission_classes = [permissions.IsAuthenticated]
 
+    def document_list(request):
+        documents = Document.objects.all().order_by('-created_at')
+        return render(request, 'plans/document_list.html', {'documents': documents})
 
     def get_queryset(self):
 
