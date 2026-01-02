@@ -10,3 +10,4 @@ python manage.py collectstatic --no-input
 
 # 3. 데이터베이스 적용 (PostgreSQL 연결 시 자동 실행됨)
 python manage.py migrate
+python create_admin.py
